@@ -79,7 +79,9 @@ class App : MultiDexApplication() {
         }
 
         fun isProVersion(): Boolean {
-            return BuildConfig.DEBUG || instance?.billingProcessor!!.isPurchased(PRO_VERSION_PRODUCT_ID)
+            // Disable this and return true for Pro
+            // return BuildConfig.DEBUG || instance?.billingProcessor!!.isPurchased(PRO_VERSION_PRODUCT_ID)
+            return true
         }
 
         lateinit var musicComponent: MusicComponent
