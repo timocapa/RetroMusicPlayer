@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?rectSelector"
     android:clickable="true"
-    android:focusable="true"
-    android:foreground="?rectSelector">
+    android:focusable="true">
 
     <FrameLayout
         android:id="@+id/dummy_view"
@@ -29,7 +29,7 @@
                 android:padding="8dp"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_drag_vertical_white_24dp"
-                app:tint="?colorOnBackground"
+                app:tint="?attr/colorControlNormal"
                 tools:ignore="ContentDescription"
                 tools:visibility="visible" />
 

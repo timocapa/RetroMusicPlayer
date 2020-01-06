@@ -4,14 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="4dp"
-    android:layout_marginTop="2dp"
-    android:layout_marginEnd="4dp"
+    android:layout_marginStart="2dp"
+    android:layout_marginEnd="2dp"
     android:layout_marginBottom="2dp"
+    android:background="?rectSelector"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?rectSelector"
-    android:gravity="center_vertical"
     android:minHeight="64dp"
     android:orientation="horizontal"
     tools:ignore="MissingPrefix">
@@ -55,7 +53,6 @@
                 android:id="@+id/imageText"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-
                 android:gravity="center"
                 android:maxLines="1"
                 android:minHeight="40dp"
@@ -85,18 +82,16 @@
             android:maxLines="1"
             android:textAppearance="@style/TextViewSubtitle1"
             android:textColor="?android:attr/textColorPrimary"
-            tools:text="Song name" />
+            tools:text="@tools:sample/lorem/random" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-
-
             android:maxLines="1"
             android:textColor="?android:attr/textColorSecondary"
-            tools:text="Song artist name " />
+            tools:text="@tools:sample/lorem/random" />
     </LinearLayout>
 
     <androidx.appcompat.widget.AppCompatImageView

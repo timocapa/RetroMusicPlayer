@@ -3,6 +3,7 @@ package code.name.monkey.retromusic.activities
 import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
+import android.transition.Slide
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.appthemehelper.util.ATHUtil
 import code.name.monkey.appthemehelper.util.MaterialUtil
+import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.App
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.base.AbsSlidingMusicPanelActivity
@@ -42,8 +44,10 @@ import code.name.monkey.retromusic.util.PreferenceUtil
 import code.name.monkey.retromusic.util.RetroColorUtil
 import com.afollestad.materialcab.MaterialCab
 import com.bumptech.glide.Glide
+import kotlinx.android.synthetic.main.activity_album.albumCoverContainer
 import kotlinx.android.synthetic.main.activity_album.albumText
 import kotlinx.android.synthetic.main.activity_album.albumTitle
+import kotlinx.android.synthetic.main.activity_album.container
 import kotlinx.android.synthetic.main.activity_album.image
 import kotlinx.android.synthetic.main.activity_album.toolbar
 import kotlinx.android.synthetic.main.activity_album_content.moreRecyclerView
@@ -52,6 +56,7 @@ import kotlinx.android.synthetic.main.activity_album_content.playAction
 import kotlinx.android.synthetic.main.activity_album_content.recyclerView
 import kotlinx.android.synthetic.main.activity_album_content.shuffleAction
 import kotlinx.android.synthetic.main.activity_album_content.songTitle
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper
 import java.util.ArrayList
 import javax.inject.Inject
 import android.util.Pair as UtilPair
@@ -90,6 +95,16 @@ class AlbumDetailsActivity : AbsSlidingMusicPanelActivity(), AlbumDetailsView, C
     @Inject
     lateinit var albumDetailsPresenter: AlbumDetailsPresenter
 
+    private fun windowEnterTransition() {
+        val slide = Slide()
+        slide.excludeTarget(R.id.appBarLayout, true)
+        slide.excludeTarget(R.id.status_bar, true)
+        slide.excludeTarget(android.R.id.statusBarBackground, true)
+        slide.excludeTarget(android.R.id.navigationBarBackground, true)
+
+        window.enterTransition = slide
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setDrawUnderStatusBar()
         super.onCreate(savedInstanceState)
@@ -98,10 +113,24 @@ class AlbumDetailsActivity : AbsSlidingMusicPanelActivity(), AlbumDetailsView, C
         setNavigationbarColorAuto()
         setTaskDescriptionColorAuto()
         setLightNavigationBar(true)
-
-        ActivityCompat.postponeEnterTransition(this)
+        window.sharedElementsUseOverlay = true
 
         App.musicComponent.inject(this)
+        albumDetailsPresenter.attachView(this)
+
+        if (intent.extras!!.containsKey(EXTRA_ALBUM_ID)) {
+            intent.extras?.getInt(EXTRA_ALBUM_ID)?.let {
+                albumDetailsPresenter.loadAlbum(it)
+                albumCoverContainer?.transitionName = "${getString(R.string.transition_album_art)}_$it"
+            }
+        } else {
+            finish()
+        }
+
+        windowEnterTransition()
+        ActivityCompat.postponeEnterTransition(this)
+
+
         artistImage = findViewById(R.id.artistImage)
 
         setupRecyclerView()
@@ -109,7 +138,10 @@ class AlbumDetailsActivity : AbsSlidingMusicPanelActivity(), AlbumDetailsView, C
         artistImage.setOnClickListener {
             val artistPairs = ActivityOptions.makeSceneTransitionAnimation(
                 this,
-                UtilPair.create(artistImage, getString(R.string.transition_artist_image))
+                UtilPair.create(
+                    artistImage,
+                    "${getString(R.string.transition_artist_image)}_${album.artistId}"
+                )
             )
             NavigationUtil.goToArtistOptions(this, album.artistId, artistPairs)
         }
@@ -118,15 +150,6 @@ class AlbumDetailsActivity : AbsSlidingMusicPanelActivity(), AlbumDetailsView, C
         }
         shuffleAction.apply {
             setOnClickListener { MusicPlayerRemote.openAndShuffleQueue(album.songs!!, true) }
-        }
-
-
-        albumDetailsPresenter.attachView(this)
-
-        if (intent.extras!!.containsKey(EXTRA_ALBUM_ID)) {
-            intent.extras?.getInt(EXTRA_ALBUM_ID)?.let { albumDetailsPresenter.loadAlbum(it) }
-        } else {
-            finish()
         }
     }
 
@@ -138,6 +161,8 @@ class AlbumDetailsActivity : AbsSlidingMusicPanelActivity(), AlbumDetailsView, C
             isNestedScrollingEnabled = false
             adapter = simpleSongAdapter
         }
+
+        OverScrollDecoratorHelper.setUpOverScroll(container)
     }
 
     override fun onDestroy() {
@@ -150,7 +175,7 @@ class AlbumDetailsActivity : AbsSlidingMusicPanelActivity(), AlbumDetailsView, C
     }
 
     override fun album(album: Album) {
-
+        complete()
         if (album.songs!!.isEmpty()) {
             finish()
             return
@@ -201,11 +226,6 @@ class AlbumDetailsActivity : AbsSlidingMusicPanelActivity(), AlbumDetailsView, C
     }
 
     private fun loadAlbumCover() {
-        /* Glide.with(this).load(RetroUtil.getAlbumArtUri(album.id)).placeholder(R.drawable.default_album_art)
-                 .error(R.drawable.default_album_art)
-                 .dontTransform()
-                 .dontAnimate().into(image)*/
-
         SongGlideRequest.Builder.from(Glide.with(this), album.safeGetFirstSong())
             .checkIgnoreMediaStore(this)
             .ignoreMediaStore(PreferenceUtil.getInstance(this).ignoreMediaStoreArtwork())
@@ -244,6 +264,12 @@ class AlbumDetailsActivity : AbsSlidingMusicPanelActivity(), AlbumDetailsView, C
         menuInflater.inflate(R.menu.menu_album_detail, menu)
         val sortOrder = menu.findItem(R.id.action_sort_order)
         setUpSortOrderMenu(sortOrder.subMenu)
+        ToolbarContentTintHelper.handleOnCreateOptionsMenu(
+            this,
+            toolbar,
+            menu,
+            getToolbarBackgroundColor(toolbar)
+        )
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -280,8 +306,8 @@ class AlbumDetailsActivity : AbsSlidingMusicPanelActivity(), AlbumDetailsView, C
                 intent.putExtra(AbsTagEditorActivity.EXTRA_ID, album.id)
                 val options = ActivityOptions.makeSceneTransitionAnimation(
                     this,
-                    image,
-                    getString(R.string.transition_album_art)
+                    albumCoverContainer,
+                    "${getString(R.string.transition_album_art)}_${album.id}"
                 )
                 startActivityForResult(intent, TAG_EDITOR_REQUEST, options.toBundle())
                 return true

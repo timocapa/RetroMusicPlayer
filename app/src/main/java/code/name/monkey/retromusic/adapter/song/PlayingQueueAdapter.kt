@@ -1,7 +1,7 @@
 package code.name.monkey.retromusic.adapter.song
 
 import android.graphics.Color
-import android.graphics.PorterDuff
+import android.graphics.PorterDuff.Mode
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
@@ -23,16 +23,15 @@ import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultAct
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultActionDefault
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultActionRemoveItem
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.annotation.SwipeableItemResults
-import java.util.*
-
+import java.util.ArrayList
 
 class PlayingQueueAdapter(
-        activity: AppCompatActivity,
-        dataSet: ArrayList<Song>,
-        private var current: Int,
-        itemLayoutRes: Int
+    activity: AppCompatActivity,
+    dataSet: ArrayList<Song>,
+    private var current: Int,
+    itemLayoutRes: Int
 ) : SongAdapter(
-        activity, dataSet, itemLayoutRes, false, null
+    activity, dataSet, itemLayoutRes, false, null
 ), DraggableItemAdapter<PlayingQueueAdapter.ViewHolder>, SwipeableItemAdapter<PlayingQueueAdapter.ViewHolder> {
 
     private var color = -1
@@ -67,7 +66,7 @@ class PlayingQueueAdapter(
         holder.time?.setTextColor(white)
         holder.imageText?.setTextColor(white)
         if (holder.menu != null) {
-            (holder.menu as ImageView).setColorFilter(white, PorterDuff.Mode.SRC_IN)
+            (holder.menu as ImageView).setColorFilter(white, Mode.SRC_IN)
         }
     }
 
@@ -158,7 +157,7 @@ class PlayingQueueAdapter(
         override fun onSongMenuItemClick(item: MenuItem): Boolean {
             when (item.itemId) {
                 R.id.action_remove_from_playing_queue -> {
-                    MusicPlayerRemote.removeFromQueue(adapterPosition)
+                    removeFromQueue(adapterPosition)
                     return true
                 }
             }
@@ -186,7 +185,10 @@ class PlayingQueueAdapter(
         private const val UP_NEXT = 2
     }
 
-    override fun onSwipeItem(holder: ViewHolder?, position: Int, @SwipeableItemResults result: Int): SwipeResultAction {
+    override fun onSwipeItem(
+        holder: ViewHolder?,
+        position: Int, @SwipeableItemResults result: Int
+    ): SwipeResultAction {
         return if (result === SwipeableItemConstants.RESULT_CANCELED) {
             SwipeResultActionDefault()
         } else {
@@ -196,9 +198,9 @@ class PlayingQueueAdapter(
 
     override fun onGetSwipeReactionType(holder: ViewHolder?, position: Int, x: Int, y: Int): Int {
         return if (onCheckCanStartDrag(holder!!, position, x, y)) {
-            SwipeableItemConstants.REACTION_CAN_NOT_SWIPE_BOTH_H;
+            SwipeableItemConstants.REACTION_CAN_NOT_SWIPE_BOTH_H
         } else {
-            SwipeableItemConstants.REACTION_CAN_SWIPE_BOTH_H;
+            SwipeableItemConstants.REACTION_CAN_SWIPE_BOTH_H
         }
     }
 
@@ -206,12 +208,14 @@ class PlayingQueueAdapter(
     }
 
     override fun onSetSwipeBackground(holder: ViewHolder?, position: Int, result: Int) {
-
     }
 
-    internal class SwipedResultActionRemoveItem(private val adapter: PlayingQueueAdapter,
-                                                private val position: Int,
-                                                private val activity: AppCompatActivity) : SwipeResultActionRemoveItem() {
+    internal class SwipedResultActionRemoveItem(
+        private val adapter: PlayingQueueAdapter,
+        private val position: Int,
+        private val activity: AppCompatActivity
+    ) : SwipeResultActionRemoveItem() {
+
         private var songToRemove: Song? = null
         private val isPlaying: Boolean = MusicPlayerRemote.isPlaying
         private val songProgressMillis = 0
@@ -230,6 +234,5 @@ class PlayingQueueAdapter(
             adapter.setSongToRemove(songToRemove!!)
             removeFromQueue(songToRemove!!)
         }
-
     }
 }

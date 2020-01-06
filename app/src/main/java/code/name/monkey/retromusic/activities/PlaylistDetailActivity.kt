@@ -74,7 +74,7 @@ class PlaylistDetailActivity : AbsSlidingMusicPanelActivity(), CabHolder, Playli
     }
 
     private fun setUpRecyclerView() {
-        ViewUtil.setUpFastScrollRecyclerViewColor(this, recyclerView)
+
         recyclerView.layoutManager = LinearLayoutManager(this)
         if (playlist is AbsCustomPlaylist) {
             adapter = PlaylistSongAdapter(this, ArrayList(), R.layout.item_list, false, this)
@@ -115,6 +115,8 @@ class PlaylistDetailActivity : AbsSlidingMusicPanelActivity(), CabHolder, Playli
                 checkIsEmpty()
             }
         })
+
+        ViewUtil.setUpFastScrollRecyclerViewColor(this, recyclerView)
     }
 
     override fun onResume() {

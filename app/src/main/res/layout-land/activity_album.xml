@@ -43,6 +43,7 @@
 
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/albumCoverContainer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="16dp"
@@ -66,6 +67,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:fillViewport="true"
+            android:id="@+id/container"
             android:overScrollMode="never">
 
             <LinearLayout
