@@ -107,11 +107,11 @@ class PlayerPlaybackControlsFragment : AbsPlayerControlsFragment(), OnSharedPref
         updatePrevNextColor()
     }
 
-
     private fun updateSong() {
         val song = MusicPlayerRemote.currentSong
         title.text = song.title
         text.text = song.artistName
+
         if (PreferenceUtil.getInstance(requireContext()).isSongInfo) {
             songInfo?.text = getSongInfo(song)
         } else {
@@ -267,7 +267,7 @@ class PlayerPlaybackControlsFragment : AbsPlayerControlsFragment(), OnSharedPref
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         println(key)
         if (key == PreferenceUtil.EXTRA_SONG_INFO) {
-            updateSong()
+            if (activity != null) updateSong()
         }
     }
 

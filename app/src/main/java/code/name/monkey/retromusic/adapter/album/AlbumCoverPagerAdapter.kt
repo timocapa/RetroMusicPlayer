@@ -70,7 +70,7 @@ class AlbumCoverPagerAdapter(
 
         private val layout: Int
             get() {
-                return when (PreferenceUtil.getInstance(activity).albumCoverStyle) {
+                return when (PreferenceUtil.getInstance(requireContext()).albumCoverStyle) {
                     AlbumCoverStyle.NORMAL -> R.layout.fragment_album_cover
                     AlbumCoverStyle.FLAT -> R.layout.fragment_album_flat_cover
                     AlbumCoverStyle.CIRCLE -> R.layout.fragment_album_circle_cover
@@ -95,13 +95,12 @@ class AlbumCoverPagerAdapter(
             savedInstanceState: Bundle?
         ): View? {
             val finalLayout = when {
-                PreferenceUtil.getInstance(activity).carouselEffect() -> R.layout.fragment_album_carousel_cover
+                PreferenceUtil.getInstance(requireContext()).carouselEffect() -> R.layout.fragment_album_carousel_cover
                 else -> layout
             }
             val view = inflater.inflate(finalLayout, container, false)
             albumCover = view.findViewById(R.id.player_image)
             albumCover.setOnClickListener {
-
                 NavigationUtil.goToLyrics(requireActivity())
             }
             return view

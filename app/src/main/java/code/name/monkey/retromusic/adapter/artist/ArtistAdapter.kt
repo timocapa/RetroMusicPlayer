@@ -13,6 +13,7 @@ import code.name.monkey.appthemehelper.util.MaterialValueHelper
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.base.AbsMultiSelectAdapter
 import code.name.monkey.retromusic.adapter.base.MediaEntryViewHolder
+import code.name.monkey.retromusic.extensions.hide
 import code.name.monkey.retromusic.glide.ArtistGlideRequest
 import code.name.monkey.retromusic.glide.RetroMusicColoredTarget
 import code.name.monkey.retromusic.helper.menu.SongsMenuHelper
@@ -22,7 +23,7 @@ import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.NavigationUtil
 import com.bumptech.glide.Glide
-import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import me.zhanghai.android.fastscroll.PopupTextProvider
 import java.util.ArrayList
 
 class ArtistAdapter(
@@ -33,7 +34,7 @@ class ArtistAdapter(
     cabHolder: CabHolder?
 ) : AbsMultiSelectAdapter<ArtistAdapter.ViewHolder, Artist>(
     activity, cabHolder, R.menu.menu_media_selection
-), FastScrollRecyclerView.SectionedAdapter {
+), PopupTextProvider {
 
     fun swapDataSet(dataSet: ArrayList<Artist>) {
         this.dataSet = dataSet
@@ -63,7 +64,7 @@ class ArtistAdapter(
         val isChecked = isChecked(artist)
         holder.itemView.isActivated = isChecked
         holder.title?.text = artist.name
-        holder.text?.visibility = View.GONE
+        holder.text?.hide()
         loadArtistImage(artist, holder)
     }
 
@@ -78,7 +79,7 @@ class ArtistAdapter(
                 )
             )
         }
-
+        holder.imageContainerCard?.setCardBackgroundColor(color)
         holder.mask?.backgroundTintList = ColorStateList.valueOf(color)
     }
 
@@ -125,7 +126,11 @@ class ArtistAdapter(
         return songs
     }
 
-    override fun getSectionName(position: Int): String {
+    override fun getPopupText(position: Int): String {
+        return getSectionName(position)
+    }
+
+    private fun getSectionName(position: Int): String {
         return MusicUtil.getSectionName(dataSet[position].name)
     }
 
